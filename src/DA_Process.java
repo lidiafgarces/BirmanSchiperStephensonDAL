@@ -33,28 +33,46 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 			return vector;
 		}
 	}
-	
+
 	protected DA_Process(String n, String ipAddress1, String proc1, String ipAddress2, String proc2) throws RemoteException {
 		super();
 		name=n;
+		createProcesses( n,  ipAddress1,  proc1, ipAddress2, proc2);
+	}
+
+	private void createProcesses(String n, String ipAddress1, String proc1, String ipAddress2, String proc2) throws RemoteException{
 		try {
 			rp1=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress1+"/"+proc1);
 			rp2=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress2+"/"+proc2);
 
-		} catch (MalformedURLException | NotBoundException e) {
-			e.printStackTrace();
+		} catch (MalformedURLException mue){
+			mue.printStackTrace();
+		} catch (Exception e) {
+			long time = System.currentTimeMillis();
+			while(System.currentTimeMillis()-time <5000){}
+			System.out.println("polling...");
+			createProcesses( n,  ipAddress1,  proc1, ipAddress2, proc2);
 		}
 	}
-	
+
 	protected DA_Process() throws RemoteException {
 		super();
 	}
 
 	public boolean sendMessage(String message) throws RemoteException {
+		
 		rp1.receiveMessage(message, getVectorClock());
 		rp2.receiveMessage(message, getVectorClock());
-		System.out.println("Sent message '"+message+"' with time vector "+ getVectorClock().toString());
+		System.out.println("Sent message '"+message+"' with time vector "+ vectorToString(getVectorClock()));
 		return false;
+	}
+	
+	private String vectorToString(int[] vector){
+		String ret = "[ ";
+		for(int e: vector){
+			ret += ""+e+" ";
+		}
+		return ret+"]";
 	}
 	
 	private int[] getVectorClock() {
@@ -62,7 +80,7 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 	}
 
 	public boolean receiveMessage(String message, int[] timeVector) throws RemoteException {
-		System.out.println("Received message '"+message+"' with time vector "+ timeVector.toString());
+		System.out.println("Received message '"+message+"' with time vector "+ vectorToString(timeVector));
 		if(checkCondition(timeVector)){
 			save(message, timeVector);
 			//the while from the slides
@@ -80,14 +98,14 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 	}
 	
 	private void saveToBuffer(String message, int[] timeVector) {
-		System.out.println("Add message '"+message+"' to buffer, with time vector "+ timeVector.toString());
+		System.out.println("Add message '"+message+"' to buffer, with time vector "+ vectorToString(timeVector));
 
 		BufferElement be = new BufferElement(message, timeVector);
 		buffer.add(be);
 	}
 
 	private void save(String m, int[] tv){
-		System.out.println("Saved message '"+m+"' with time vector "+ tv.toString());
+		System.out.println("Saved message '"+m+"' with time vector "+ vectorToString(tv));
 		setVectorClock(tv);
 	}
 
