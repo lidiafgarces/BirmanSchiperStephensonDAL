@@ -10,11 +10,12 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 	private static final long serialVersionUID = 6384248030531941625L;
 	private final int MAXBROADCASTS = 100;
 	private int currentBroadcasts = 0;
-	public String name; 
+	public int number; 
 	private DA_Process_RMI rp1;
 	private DA_Process_RMI rp2;
 	public static final int FACTOR = 1;
 	private int[] vectorClock = new int[3];
+	private static final String NAMING = "proc";
 	
 	//TODO automatize for different number of processes
 	
@@ -34,16 +35,16 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 		}
 	}
 
-	protected DA_Process(String n, String ipAddress1, String proc1, String ipAddress2, String proc2) throws RemoteException {
+	protected DA_Process(int n, String ipAddress1, int proc1, String ipAddress2, int proc2) throws RemoteException {
 		super();
-		name=n;
+		number=n;
 		createProcesses( n,  ipAddress1,  proc1, ipAddress2, proc2);
 	}
 
-	private void createProcesses(String n, String ipAddress1, String proc1, String ipAddress2, String proc2) throws RemoteException{
+	private void createProcesses(int n, String ipAddress1, int proc1, String ipAddress2, int proc2) throws RemoteException{
 		try {
-			rp1=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress1+"/"+proc1);
-			rp2=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress2+"/"+proc2);
+			rp1=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress1+"/"+NAMING+proc1);
+			rp2=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress2+"/"+NAMING+proc2);
 
 		} catch (MalformedURLException mue){
 			mue.printStackTrace();
@@ -60,7 +61,9 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 	}
 
 	public boolean sendMessage(String message) throws RemoteException {
-		
+		int[] vector = getVectorClock();
+		vector[number-1] ++;
+		setVectorClock(vector);
 		rp1.receiveMessage(message, getVectorClock());
 		rp2.receiveMessage(message, getVectorClock());
 		System.out.println("Sent message '"+message+"' with time vector "+ vectorToString(getVectorClock()));
