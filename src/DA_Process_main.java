@@ -28,7 +28,7 @@ public class DA_Process_main {
 
 			DA_Process remoteProcess=new DA_Process();
 
-			Naming.rebind("rmi://145.94.172.45/"+processNumber, remoteProcess);
+			Naming.rebind("rmi://145.94.172.45/"+"proc"+processNumber, remoteProcess);
 			System.out.println("Server is Ready");
 			//
 			//client

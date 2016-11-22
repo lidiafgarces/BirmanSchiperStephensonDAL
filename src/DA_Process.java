@@ -61,8 +61,13 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 	}
 
 	public boolean sendMessage(String message) throws RemoteException {
+		System.out.println("\n");
+		System.out.println("SENDING MESSAGE");
 		int[] vector = getVectorClock();
+		System.out.println("Old vector clock "+vectorToString(vectorClock) + " from process "+ number);
+		System.out.println("Old vector clock from getVectorsClock "+vectorToString(vector));
 		vector[number-1] ++;
+		System.out.println("New vector clock "+vectorToString(vector));
 		setVectorClock(vector);
 		rp1.receiveMessage(message, getVectorClock());
 		rp2.receiveMessage(message, getVectorClock());
@@ -83,6 +88,8 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 	}
 
 	public boolean receiveMessage(String message, int[] timeVector) throws RemoteException {
+		System.out.println("\n");
+		System.out.println("RECEIVING MESSAGE");
 		System.out.println("Received message '"+message+"' with time vector "+ vectorToString(timeVector));
 		if(checkCondition(timeVector)){
 			save(message, timeVector);
@@ -109,11 +116,17 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 
 	private void save(String m, int[] tv){
 		System.out.println("Saved message '"+m+"' with time vector "+ vectorToString(tv));
-		setVectorClock(tv);
+		// We were setting the vector clock here, but actually it should be set before. Now it is in cekcCondition provisionally.
+		//setVectorClock(tv);
 	}
 
 	private void setVectorClock(int [] newVector) {
-		vectorClock = newVector;
+		System.out.println("Global vector clock " + vectorToString(vectorClock) + " from process "+ number);
+		this.vectorClock = newVector;
+		System.out.println("Set clock vector to '"+vectorToString(newVector));
+		System.out.println("New global vector clock " + vectorToString(vectorClock));
+
+
 	}
 
 	private boolean checkCondition(int[] receivedVector) {
@@ -125,6 +138,7 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 				break;
 			}			
 		}
+		
 		for(int i=0; i<helpVector.length; i++){
 			if(receivedVector[i]>helpVector[i]){
 				System.out.println("Condition not fulfilled");
@@ -132,6 +146,10 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 			}			
 		}
 		System.out.println("Condition fulfilled");
+		
+		//unclean
+		System.out.println("We have compared "+vectorToString(receivedVector) + " with " +vectorToString(vectorClock));
+		setVectorClock(helpVector);
 
 		return true;
 	}
