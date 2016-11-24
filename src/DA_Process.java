@@ -65,8 +65,8 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 		vector[number-1] ++;
 		setVectorClock(vector);
 
-		new Thread(new Sender(rp1, getVectorClock(), message)).start();
-		new Thread(new Sender(rp2, getVectorClock(), message)).start();
+		new Thread(new Sender(rp1, vector, message)).start();
+		new Thread(new Sender(rp2, vector, message)).start();
 		System.out.println("Sent message '"+message+"' with time vector "+ vectorToString(getVectorClock()));
 		return false;
 	}
@@ -99,8 +99,10 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 			save(message, timeVector);
 			//the while from the slides
 			for(int i=0; i<buffer.size(); i++){
+				System.out.println("Check BUFFER element "+vectorToString(buffer.get(i).getVector()));
 				if(checkCondition(buffer.get(i).getVector())){
-					save(buffer.get(i).getMessage(), buffer.get(i).getVector());
+					BufferElement el = buffer.remove(i);
+					save(el.getMessage(), el.getVector());
 					i=0;
 				}
 			}	
@@ -142,6 +144,8 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 		}
 		
 		for(int i=0; i<helpVector.length; i++){
+			System.out.println("We have compared th received vector"+vectorToString(receivedVector) + " with the global vector" +vectorToString(vectorClock));
+			System.out.println("We have compared the received element "+receivedVector[i] + " with global element" +helpVector[i]);
 			if(receivedVector[i]>helpVector[i]){
 				System.out.println("Condition not fulfilled");
 				return false;
@@ -150,7 +154,7 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 		System.out.println("Condition fulfilled");
 		
 		//unclean
-		System.out.println("We have compared "+vectorToString(receivedVector) + " with " +vectorToString(vectorClock));
+		//System.out.println("We have compared "+vectorToString(receivedVector) + " with " +vectorToString(vectorClock));
 		setVectorClock(helpVector);
 
 		return true;
