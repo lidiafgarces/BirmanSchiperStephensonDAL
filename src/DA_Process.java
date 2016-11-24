@@ -61,14 +61,12 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 	public boolean sendMessage(String message) throws RemoteException {
 		System.out.println("\n");
 		System.out.println("SENDING MESSAGE");
-		int[] vector = getVectorClock();
-		System.out.println("Old vector clock "+vectorToString(vectorClock) + " from process "+ number);
-		System.out.println("Old vector clock from getVectorsClock "+vectorToString(vector));
+		int[] vector = getVectorClock();	
 		vector[number-1] ++;
-		System.out.println("New vector clock "+vectorToString(vector));
 		setVectorClock(vector);
-		rp1.receiveMessage(message, getVectorClock());
-		rp2.receiveMessage(message, getVectorClock());
+
+		new Thread(new Sender(rp1, getVectorClock(), message)).start();
+		new Thread(new Sender(rp2, getVectorClock(), message)).start();
 		System.out.println("Sent message '"+message+"' with time vector "+ vectorToString(getVectorClock()));
 		return false;
 	}
@@ -86,6 +84,14 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 	}
 
 	public boolean receiveMessage(String message, int[] timeVector) throws RemoteException {
+		java.util.Random r = new java.util.Random();
+		int waitTime = r.nextInt(((5 - 1) + 1) + 1)*1000;
+		try {
+			Thread.sleep(waitTime);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		System.out.println("\n");
 		System.out.println("RECEIVING MESSAGE");
 		System.out.println("Received message '"+message+"' with time vector "+ vectorToString(timeVector));
@@ -114,14 +120,12 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 
 	private void save(String m, int[] tv){
 		System.out.println("Saved message '"+m+"' with time vector "+ vectorToString(tv));
-		// We were setting the vector clock here, but actually it should be set before. Now it is in cekcCondition provisionally.
+		// We were setting the vector clock here, but actually it should be set before. Now it is in chekcCondition provisionally.
 		//setVectorClock(tv);
 	}
 
 	private void setVectorClock(int [] newVector) {
-		System.out.println("Global vector clock " + vectorToString(vectorClock) + " from process "+ number);
 		this.vectorClock = newVector;
-		System.out.println("Set clock vector to '"+vectorToString(newVector));
 		System.out.println("New global vector clock " + vectorToString(vectorClock));
 
 
@@ -152,4 +156,26 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 		return true;
 	}
 
+	private class Sender implements Runnable{
+
+		private DA_Process_RMI process;
+		private int[] vector;
+		private String message;
+		
+		public Sender(DA_Process_RMI process, int[] vector, String message){
+			this.process = process;
+			this.vector = vector;
+			this.message = message;
+		}
+		@Override
+		public void run() {
+			try {
+				process.receiveMessage(message, vector);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
 }

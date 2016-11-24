@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 public class DA_Process_main {
 
 	public static void main(String[] args) {
+		long startTime = System.currentTimeMillis();
 		int registryPort = Integer.parseInt(args[0]);
 		int processNumber = Integer.parseInt(args[1]);
 		
@@ -35,14 +36,19 @@ public class DA_Process_main {
 			//
 			//client
 			//
-//			DA_Process process1=new DA_Process(processNumber, ipAddress1, rp1Number, ipAddress2, rp2Number);
 			System.out.println("Running process "+processNumber+".....");
-//			DA_Process_RMI process2=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress+"/process2");
-//			DA_Process_RMI process3=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress+"/process3");
 			System.out.println("Connected to process "+rp1Number+" and process "+rp2Number+".....");
 			
 			while(true){
-				process1.sendMessage(System.console().readLine());
+				java.util.Random r = new java.util.Random();
+				int waitTime = r.nextInt(((5 - 1) + 1) + 1)*1000;
+				try {
+					Thread.sleep(waitTime);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				process1.sendMessage("time: "+(System.currentTimeMillis()-startTime)+" --Sender: proc"+processNumber);
 			}
 			
 
