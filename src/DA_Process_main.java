@@ -40,7 +40,8 @@ public class DA_Process_main {
 			System.out.println("Connected to process "+rp1Number+" and process "+rp2Number+".....");
 			Thread.sleep(10000);
 			System.out.println("Start to send");
-			while(true){
+			boolean running = true;
+			while(running){
 				java.util.Random r = new java.util.Random();
 				int waitTime = (r.nextInt((5 - 1) + 1) + 1)*1000;
 				try {
@@ -50,7 +51,7 @@ public class DA_Process_main {
 					e.printStackTrace();
 				}
 				process1.sendMessage("time: "+(System.currentTimeMillis()-startTime)+" --Sender: proc"+processNumber);
-				if (System.currentTimeMillis()==startTime+30000) break;
+				//if (System.currentTimeMillis()==startTime+30000) running=false;
 			}
 			
 

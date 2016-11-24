@@ -99,7 +99,9 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 			save(message, timeVector);
 			//the while from the slides
 			for(int i=0; i<buffer.size(); i++){
-				System.out.println("Check BUFFER element "+vectorToString(buffer.get(i).getVector()));
+				System.out.println("CHECK BUFFER ELEMENT "+vectorToString(buffer.get(i).getVector()));
+				System.out.println("Buffer element with clock vector "+vectorToString(buffer.get(i).getVector()));
+
 				if(checkCondition(buffer.get(i).getVector())){
 					BufferElement el = buffer.remove(i);
 					save(el.getMessage(), el.getVector());
@@ -142,10 +144,9 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 				break;
 			}			
 		}
-		
+		System.out.println("We have compared the received vector "+vectorToString(receivedVector) + " with the global vector" +vectorToString(vectorClock));
 		for(int i=0; i<helpVector.length; i++){
-			System.out.println("We have compared th received vector"+vectorToString(receivedVector) + " with the global vector" +vectorToString(vectorClock));
-			System.out.println("We have compared the received element "+receivedVector[i] + " with global element" +helpVector[i]);
+			//System.out.println("We have compared the received element "+receivedVector[i] + " with global element" +helpVector[i]);
 			if(receivedVector[i]>helpVector[i]){
 				System.out.println("Condition not fulfilled");
 				return false;
