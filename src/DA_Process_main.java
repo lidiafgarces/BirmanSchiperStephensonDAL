@@ -17,7 +17,7 @@ public class DA_Process_main {
 			//server
 			//
 
-			System.setProperty("java.rmi.server.hostname","145.94.172.45");
+			System.setProperty("java.rmi.server.hostname","145.94.174.30");
 			try {
 				java.rmi.registry.LocateRegistry.createRegistry(registryPort);
 			} catch (RemoteException e){
@@ -26,20 +26,25 @@ public class DA_Process_main {
 				
 			}
 
-			DA_Process remoteProcess=new DA_Process();
+			DA_Process process1=new DA_Process();
 
-			Naming.rebind("rmi://145.94.172.45/"+"proc"+processNumber, remoteProcess);
+			
+			Naming.rebind("rmi://145.94.174.30/"+"proc"+processNumber, process1);
+			process1.createProcesses(processNumber, ipAddress1, rp1Number, ipAddress2, rp2Number);
 			System.out.println("Server is Ready");
 			//
 			//client
 			//
-			DA_Process process1=new DA_Process(processNumber, ipAddress1, rp1Number, ipAddress2, rp2Number);
+//			DA_Process process1=new DA_Process(processNumber, ipAddress1, rp1Number, ipAddress2, rp2Number);
 			System.out.println("Running process "+processNumber+".....");
 //			DA_Process_RMI process2=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress+"/process2");
 //			DA_Process_RMI process3=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress+"/process3");
 			System.out.println("Connected to process "+rp1Number+" and process "+rp2Number+".....");
 			
-			process1.sendMessage(System.console().readLine());
+			while(true){
+				process1.sendMessage(System.console().readLine());
+			}
+			
 
 		}catch(Exception e){
 			e.printStackTrace();

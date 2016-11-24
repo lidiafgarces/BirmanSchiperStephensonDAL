@@ -35,29 +35,27 @@ public class DA_Process extends UnicastRemoteObject implements DA_Process_RMI{
 		}
 	}
 
-	protected DA_Process(int n, String ipAddress1, int proc1, String ipAddress2, int proc2) throws RemoteException {
+	protected DA_Process() throws RemoteException {
 		super();
-		number=n;
-		createProcesses( n,  ipAddress1,  proc1, ipAddress2, proc2);
+		//number=n;
+		//createProcesses( n,  ipAddress1,  proc1, ipAddress2, proc2);
 	}
 
-	private void createProcesses(int n, String ipAddress1, int proc1, String ipAddress2, int proc2) throws RemoteException{
+	public void createProcesses(int n, String ipAddress1, int proc1, String ipAddress2, int proc2) throws RemoteException{
 		try {
+			number=n;
 			rp1=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress1+"/"+NAMING+proc1);
 			rp2=(DA_Process_RMI)Naming.lookup("rmi://"+ipAddress2+"/"+NAMING+proc2);
 
 		} catch (MalformedURLException mue){
 			mue.printStackTrace();
 		} catch (Exception e) {
+			//e.printStackTrace();
 			long time = System.currentTimeMillis();
 			while(System.currentTimeMillis()-time <5000){}
 			System.out.println("polling...");
 			createProcesses( n,  ipAddress1,  proc1, ipAddress2, proc2);
 		}
-	}
-
-	protected DA_Process() throws RemoteException {
-		super();
 	}
 
 	public boolean sendMessage(String message) throws RemoteException {

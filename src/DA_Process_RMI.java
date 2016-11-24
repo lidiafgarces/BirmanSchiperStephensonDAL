@@ -7,3 +7,4 @@ public interface DA_Process_RMI extends Remote{
 	public boolean receiveMessage(String message, int[] timeVector) throws RemoteException;
 
 }
+
